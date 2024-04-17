@@ -1,0 +1,12 @@
+description: Custom role to view apps
+etag: BwYVu3QuaCE=
+includedPermissions:
+- appengine.versions.get
+- appengine.versions.list
+- compute.instances.get
+- compute.instances.list
+- container.clusters.get
+- container.clusters.list
+name: projects/qwiklabs-gcp-04-cba48a94e172/roles/app_viewer
+stage: ALPHA
+title: App Viewer

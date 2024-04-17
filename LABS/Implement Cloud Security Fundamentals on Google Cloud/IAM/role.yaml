@@ -1,0 +1,10 @@
+title: App Viewer
+description: Custom role to view apps
+stage: ALPHA
+includedPermissions:
+- compute.instances.get
+- compute.instances.list
+- appengine.versions.get
+- appengine.versions.list
+
+
