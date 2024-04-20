@@ -17,7 +17,7 @@ gcloud iam roles describe [ROLE_NAME]
 gcloud iam list-grantable-roles //cloudresourcemanager.googleapis.com/projects/$DEVSHELL_PROJECT_ID
 
 #Task 4. Create a custom role using a YAML file
-gcloud iam roles create editor --project $DEVSHELL_PROJECT_ID \\n--file role-definition.yaml
+gcloud iam roles create editor --project $DEVSHELL_PROJECT_ID --file role-definition.yaml
 
 #Task 5. Create a custom role using flags
 gcloud iam roles create viewer --project $DEVSHELL_PROJECT_ID \
