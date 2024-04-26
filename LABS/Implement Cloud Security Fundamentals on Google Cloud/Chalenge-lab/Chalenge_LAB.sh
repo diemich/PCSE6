@@ -118,6 +118,7 @@ gcloud container clusters describe $CLUSTER_NAME
 
 #Create a source instance which you'll use to check the connectivity to Kubernetes clusters:
 
+#Locate orca-jumphost IP address
 gcloud compute instances list
 
 
