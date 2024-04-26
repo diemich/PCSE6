@@ -1,0 +1,4 @@
+NAME           ZONE            MACHINE_TYPE  PREEMPTIBLE  INTERNAL_IP  EXTERNAL_IP     STATUS
+default-us-vm  us-central1-a   e2-micro                   10.128.0.2   35.223.192.186  RUNNING
+default-eu-vm  europe-west1-b  e2-micro                   10.132.0.2   34.79.238.154   RUNNING
+default-ap-vm  asia-east1-a    e2-micro                   10.140.0.2   35.194.215.213  RUNNING
