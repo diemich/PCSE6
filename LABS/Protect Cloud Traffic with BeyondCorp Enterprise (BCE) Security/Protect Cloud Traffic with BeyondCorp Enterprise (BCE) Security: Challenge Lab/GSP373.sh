@@ -35,6 +35,14 @@ gcloud app browse
 
 # Task 2. Configure OAuth Consent for the web application deployed
 
+gcloud iap oauth-brands create \
+--application_title=$APPLICATION_TITLE \
+--support_email=$SUPPORT_EMAIL \
+--project=$PROJECT_ID
+
+gcloud iap oauth-brands list
+
+# In Google Cloud Platform Console change settings for external use
 
 # Task 3. Configure the deployed web application to utilize IAP to protect traffic
 
