@@ -1,0 +1,23 @@
+{
+	"item": {
+		"value": "Please update my records with the following information:\n Email address: foo@example.com,\nNational Provider Identifier: 1245319599"
+	},
+	"deidentifyConfig": {
+		"infoTypeTransformations": {
+			"transformations": [{
+				"primitiveTransformation": {
+					"replaceWithInfoTypeConfig": {}
+				}
+			}]
+		}
+	},
+	"inspectConfig": {
+		"infoTypes": [{
+				"name": "EMAIL_ADDRESS"
+			},
+			{
+				"name": "US_HEALTHCARE_NPI"
+			}
+		]
+	}
+}
