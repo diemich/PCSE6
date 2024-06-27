@@ -1,0 +1,111 @@
+#!/bin/bash
+set -euxo pipefail #Bash Strict Mode
+
+#Task 1. Enable APIs
+#Enable Compute Engine API
+gcloud services enable compute.googleapis.com
+
+#Enable Cloud DNS API
+gcloud services enable dns.googleapis.com
+#Verify that the APIs are enabled
+gcloud services list | grep -E 'compute|dns'
+
+
+#Task 2. Configure the firewall
+gcloud compute firewall-rules create fw-default-iapproxy \
+--direction=INGRESS \
+--priority=1000 \
+--network=default \
+--action=ALLOW \
+--rules=tcp:22,icmp \
+--source-ranges=35.235.240.0/20
+
+gcloud compute firewall-rules create allow-http-traffic \
+--direction=INGRESS \
+--priority=1000 \
+--network=default \
+--action=ALLOW \
+--rules=tcp:80 \
+--source-ranges=0.0.0.0/0 \
+--target-tags=http-server
+
+
+#Task 3. Launch client VMs
+gcloud compute instances create us-client-vm --machine-type=e2-micro --zone us-central1-c
+#
+#Launch a client in Europe
+gcloud compute instances create europe-client-vm --machine-type=e2-micro --zone "europe-west1-c"
+
+gcloud compute instances create asia-client-vm --machine-type=e2-micro --zone "asia-southeast2-c" # command doesn't work
+#gcloud compute zones list | grep -iE 'NAME.*asia' | sed 's/NAME: //i' | sort
+#
+gcloud compute instances create asia-client-vm --machine-type=e2-micro --zone "asia-southeast1-a"
+
+#Task 4. Launch Server VMs
+
+#Launch server in the United States
+gcloud compute instances create us-web-vm \
+--machine-type=e2-micro \
+--zone=us-central1-c \
+--network=default \
+--subnet=default \
+--tags=http-server \
+--metadata=startup-script='#! /bin/bash
+ apt-get update
+ apt-get install apache2 -y
+ echo "Page served from: us-central1" | \
+ tee /var/www/html/index.html
+ systemctl restart apache2'
+
+#Launch server in Europe
+gcloud compute instances create europe-web-vm \
+--machine-type=e2-micro \
+--zone=europe-west1-c \
+--network=default \
+--subnet=default \
+--tags=http-server \
+--metadata=startup-script='#! /bin/bash
+ apt-get update
+ apt-get install apache2 -y
+ echo "Page served from: europe-west1-c" | \
+ tee /var/www/html/index.html
+ systemctl restart apache2'
+
+
+#Task 5. Setting up environment variables
+
+#Command to save IP address for the VM in the United States
+export US_WEB_IP=$(gcloud compute instances describe us-web-vm --zone=us-central1-c --format="value(networkInterfaces.networkIP)")
+
+export EUROPE_WEB_IP=$(gcloud compute instances describe europe-web-vm --zone=europe-west1-c --format="value(networkInterfaces.networkIP)")
+
+
+
+#Task 6. Create the private zone
+gcloud dns managed-zones create example --description=test --dns-name=example.com --networks=default --visibility=private
+
+#Task 7. Create Cloud DNS Routing Policy
+gcloud dns record-sets create geo.example.com \
+--ttl=5 --type=A --zone=example \
+--routing-policy-type=GEO \
+--routing-policy-data="us-central1=$US_WEB_IP;europe-west1=$EUROPE_WEB_IP"
+
+#Use the dns record-sets list command to verify that the geo.example.com DNS record is configured as expected:
+gcloud dns record-sets list --zone=example
+
+#Task 8. Testing
+#Testing from the client VM in Europe
+gcloud compute ssh europe-client-vm --zone europe-west1-c --tunnel-through-iap
+
+#Use curl to access the web server
+for i in {1..10}; do echo $i; curl geo.example.com; sleep 6; done
+
+#Testing from the client VM in us-east1
+gcloud compute ssh us-client-vm --zone us-central1-c --tunnel-through-iap
+
+for i in {1..10}; do echo $i; curl geo.example.com; sleep 6; done
+
+
+gcloud compute ssh asia-client-vm --tunnel-through-iap --zone "asia-southeast1-a"
+
+
